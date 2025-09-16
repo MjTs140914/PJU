@@ -430,7 +430,6 @@ function goHome(){ window.location.href = '/'; }
   return page;
 }
 
-
 // ==== Setup ====
 void setup() {
   Serial.begin(115200);
