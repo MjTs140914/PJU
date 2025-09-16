@@ -37,7 +37,7 @@ ESP32 bekerja dalam mode **Access Point (AP)** sehingga bisa diakses langsung da
 ## 🌐 Akses Web
 
 - **Halaman utama:**  
-  `http://192.168.4.1/` atau `http://alamat_anda.local/` ganti pake alamat web anda  
+  `http://192.168.4.1/` atau `http://alamat_anda.local/` ganti pake alamat web anda   
 
 - **Halaman konfigurasi WiFi:**  
   `http://192.168.4.1/config`  
