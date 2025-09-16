@@ -1,3 +1,36 @@
+/*
+  Smart Relay Scheduler (ESP32 + DS3231 RTC)
+  ------------------------------------------
+  Fitur:
+  - Kontrol relay berbasis jadwal ON/OFF dengan RTC DS3231
+  - Kontrol manual via web (Hidupkan/Matikan relay)
+  - Tema web interface: Terang 🌞 / Gelap 🌙
+  - Sinkronisasi waktu RTC dari HP/Browser
+  - Penyimpanan pengaturan (jadwal, WiFi SSID & password, tema, last ON/OFF)
+    menggunakan Preferences (NVS) di ESP32
+  - mDNS untuk akses mudah via http://alamat_anda.local
+  - Riwayat waktu terakhir relay ON/OFF tersimpan
+
+  Hardware:
+  - Board   : ESP32
+  - RTC     : DS3231 (I2C SDA=21, SCL=22)
+  - Relay   : Pin 16 (aktif LOW)
+
+  Library Dependencies:
+  - Wire.h
+  - RTClib.h (Adafruit)
+  - WiFi.h
+  - AsyncTCP.h
+  - ESPAsyncWebServer.h
+  - Preferences.h
+  - ESPmDNS.h
+
+  Author   : MjTs-140914™
+  Tahun    : 2025
+  License  : Open-source / bebas digunakan dengan mencantumkan kredit
+*/
+
+
 #include <Wire.h>
 #include "RTClib.h"
 #include <WiFi.h>
