@@ -8,7 +8,7 @@
   - Sinkronisasi waktu RTC dari HP/Browser
   - Penyimpanan pengaturan (jadwal, WiFi SSID & password, tema, last ON/OFF)
     menggunakan Preferences (NVS) di ESP32
-  - mDNS untuk akses mudah via http://alamat_anda.local
+  - mDNS untuk akses mudah via http://alamat_anda.local ganti oleh anda
   - Riwayat waktu terakhir relay ON/OFF tersimpan
 
   Hardware:
