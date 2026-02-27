@@ -1,166 +1,120 @@
 # 💡 ESP32 RTC Relay Scheduler
 
-![Platform](https://img.shields.io/badge/platform-ESP32-blue)
-![Framework](https://img.shields.io/badge/framework-Arduino-green)
-![RTC](https://img.shields.io/badge/RTC-DS3231-orange)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
-![Status](https://img.shields.io/badge/status-Stable-brightgreen)
+Proyek ini adalah **kontrol relay berbasis jadwal otomatis dengan RTC DS3231** menggunakan **ESP32**.  
+Relay dapat dikontrol otomatis sesuai jadwal, atau manual melalui **Web UI interaktif** dengan dukungan **tema gelap/terang**, **sinkronisasi RTC**, dan **konfigurasi WiFi**.  
 
-An **automatic schedule-based relay controller** using **ESP32 + DS3231
-RTC** with a modern Web UI.
+ESP32 bekerja dalam mode **Access Point (AP)** sehingga bisa diakses langsung dari smartphone/PC tanpa router tambahan.
 
-The relay operates automatically based on a defined schedule or can be
-controlled manually via a responsive web interface supporting:
+---
 
--   🌙 Light / Dark theme
--   🔄 RTC synchronization
--   📶 WiFi configuration
--   💾 Persistent storage (NVS)
--   🔗 mDNS hostname access
+## ⚡ Pinout ESP32
 
-ESP32 runs in **Access Point (AP) mode**, allowing direct access from
-smartphone or PC without an external router.
+| Pin ESP32 | Fungsi       | Keterangan |
+|-----------|--------------|------------|
+| **GPIO 16** | Relay Output | Relay aktif **LOW** → `LOW = ON`, `HIGH = OFF`. |
+| **GPIO 21** | SDA (I²C)   | Jalur data ke RTC DS3231. |
+| **GPIO 22** | SCL (I²C)   | Jalur clock ke RTC DS3231. |
+| **GND**    | Ground       | Terhubung ke GND RTC & relay module. |
+| **3.3V/5V** | VCC         | Daya untuk RTC & relay (tergantung modul relay). |
 
-------------------------------------------------------------------------
+---
 
-# 📌 Features
+## 🧩 Fitur Utama
 
--   ⏰ DS3231 Real-Time Clock (battery-backed)
--   🕒 Automatic ON/OFF scheduling
--   🔘 Manual override (30-second temporary control)
--   🌐 Async Web Server (non-blocking)
--   📡 WiFi AP configuration page
--   🎨 Light / Dark UI theme
--   🔗 mDNS support (`http://your_address.local`)
--   📜 Relay activity logging (last ON/OFF time)
--   💾 NVS storage (settings survive reboot)
+- **RTC DS3231** → menyimpan waktu walau listrik mati.  
+- **Jadwal otomatis** → atur jam ON dan OFF (contoh: ON jam 18:00, OFF jam 06:00).  
+- **Kontrol manual override** → tombol ON/OFF di web, aktif 30 detik lalu kembali ke mode jadwal.  
+- **Web Server (ESPAsyncWebServer)**:  
+  - Halaman utama → status relay, RTC, jadwal, kontrol manual, tema.  
+  - Halaman konfigurasi WiFi → ubah SSID & password AP.  
+- **Penyimpanan NVS (Preferences)** → setting tersimpan walau restart.  
+- **Tema UI (light/dark)**.  
+- **mDNS** → akses via `http://alamat_anda.local` ganti pake alamat web anda.  
+- **Log aktivitas** → simpan waktu terakhir relay ON dan OFF.  
 
-------------------------------------------------------------------------
+---
 
-# ⚡ Hardware Requirements
+## 🌐 Akses Web
 
--   ESP32
--   DS3231 RTC Module
--   1-Channel Relay Module (Active LOW)
--   Jumper wires
--   5V power supply
+- **Halaman utama:**  
+  `http://192.168.4.1/` atau `http://alamat_anda.local/` ganti pake alamat web anda   
 
-------------------------------------------------------------------------
+- **Halaman konfigurasi WiFi:**  
+  `http://192.168.4.1/config`  
 
-# 🔌 ESP32 Pinout
+Default:
+- **SSID** = `SSID_Anda`  
+- **Password** = `Sandi_Anda` (minimal 8 karakter)  
 
-  ESP32 Pin   Function       Description
-  ----------- -------------- ---------------------------------------
-  GPIO 16     Relay Output   Active LOW → `LOW = ON`, `HIGH = OFF`
-  GPIO 21     SDA (I²C)      RTC Data line
-  GPIO 22     SCL (I²C)      RTC Clock line
-  GND         Ground         Shared ground
-  3.3V / 5V   VCC            Power for RTC & relay
+---
 
-------------------------------------------------------------------------
+## 📑 Endpoint API
 
-# 🖼 Wiring Diagram
+| Endpoint | Fungsi |
+|----------|--------|
+| `/` | Halaman utama (status & kontrol). |
+| `/config` | Halaman konfigurasi SSID & password AP. |
+| `/status` | JSON status relay, RTC, jadwal, dan riwayat ON/OFF. |
+| `/on` | Menyalakan relay (manual override). |
+| `/off` | Mematikan relay (manual override). |
+| `/reset` | Reset ke mode jadwal. |
+| `/set?on=HH:MM&off=HH:MM` | Atur jadwal ON/OFF. |
+| `/toggle?state=1/0` | Aktifkan/nonaktifkan jadwal otomatis. |
+| `/sync?y=YYYY&m=MM&d=DD&h=HH&min=MM&s=SS` | Sinkronisasi RTC dari waktu HP/PC. |
+| `/theme?dark=1/0` | Ganti tema (1 = Gelap, 0 = Terang). |
 
-    ESP32        DS3231
-    ------       --------
-    3.3V/5V  ->  VCC
-    GND      ->  GND
-    GPIO 21  ->  SDA
-    GPIO 22  ->  SCL
+---
 
-    ESP32        Relay Module
-    ------       ------------
-    GPIO 16  ->  IN
-    5V       ->  VCC
-    GND      ->  GND
+## 📦 Dependencies
 
-⚠ Relay must be **Active LOW type**.
+Agar kode bisa dikompilasi di **Arduino IDE / PlatformIO**, pastikan library berikut sudah terpasang:  
 
-------------------------------------------------------------------------
+### ✅ Wajib Install
+- [RTClib](https://github.com/adafruit/RTClib) → komunikasi RTC DS3231.  
+- [AsyncTCP](https://github.com/me-no-dev/AsyncTCP) → backend TCP untuk ESP32.  
+- [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) → web server non-blocking.  
 
-# 🌐 Web Access
+### 📂 Sudah Bawaan Core ESP32
+- **Wire.h** → komunikasi I²C.  
+- **WiFi.h** → pengaturan WiFi (AP/STA).  
+- **Preferences.h** → penyimpanan NVS.  
+- **ESPmDNS.h** → akses hostname via mDNS.  
 
-### Main Page
+---
 
-http://192.168.4.1/ http://your_address.local/
+## 🛠️ Cara Install Library
 
-### WiFi Configuration
+### 1. Via Arduino IDE Library Manager
+- Buka **Tools → Manage Libraries...**  
+- Cari dan install:  
+  - `RTClib` (by Adafruit).  
 
-http://192.168.4.1/config
+### 2. Manual dari GitHub
+- Download ZIP:  
+  - [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)  
+  - [AsyncTCP](https://github.com/me-no-dev/AsyncTCP)  
+- Arduino IDE → **Sketch → Include Library → Add .ZIP Library...** → pilih file ZIP.  
 
-### Default Credentials
+---
 
-SSID : Your_SSID Password : Your_Password (minimum 8 characters)
+## 📷 Tampilan Web UI
+- Status relay (ON/OFF).  
+- RTC (waktu real-time).  
+- Jadwal ON/OFF (form input jam).  
+- Tombol manual ON/OFF.  
+- Sinkronisasi RTC.  
+- Reset ke mode jadwal.  
+- Switch tema (☀️ Terang / 🌙 Gelap).  
 
-------------------------------------------------------------------------
+---
 
-# 📑 API Endpoints
+## 📌 Catatan
 
-  Endpoint                                    Description
-  ------------------------------------------- --------------------------
-  `/`                                         Main dashboard
-  `/config`                                   AP configuration page
-  `/status`                                   JSON status data
-  `/on`                                       Manual relay ON
-  `/off`                                      Manual relay OFF
-  `/reset`                                    Return to schedule mode
-  `/set?on=HH:MM&off=HH:MM`                   Set schedule
-  `/toggle?state=1/0`                         Enable/disable scheduler
-  `/sync?y=YYYY&m=MM&d=DD&h=HH&min=MM&s=SS`   Sync RTC
-  `/theme?dark=1/0`                           Change theme
+- Relay harus tipe **aktif LOW**.  
+- RTC DS3231 wajib terhubung ke pin SDA = 21, SCL = 22.  
+- Semua konfigurasi (jadwal, WiFi, tema) tersimpan otomatis ke memori NVS ESP32.  
+- Saat ESP32 restart → relay default **OFF** (HIGH).  
 
-------------------------------------------------------------------------
-
-# 📦 Dependencies
-
-### Required Libraries
-
--   RTClib
--   AsyncTCP
--   ESPAsyncWebServer
-
-### Included in ESP32 Core
-
--   Wire.h
--   WiFi.h
--   Preferences.h
--   ESPmDNS.h
-
-------------------------------------------------------------------------
-
-# 🛠 Installation
-
-## Arduino IDE
-
-1.  Install **RTClib** from Library Manager.
-2.  Download:
-    -   ESPAsyncWebServer
-    -   AsyncTCP
-3.  Sketch → Include Library → Add .ZIP Library
-
-## PlatformIO
-
-Add to `platformio.ini`:
-
-``` ini
-lib_deps =
-    adafruit/RTClib
-    me-no-dev/AsyncTCP
-    me-no-dev/ESPAsyncWebServer
-```
-
-------------------------------------------------------------------------
-
-# 📌 Notes
-
--   Relay defaults to **OFF (HIGH)** on reboot.
--   All settings are stored in ESP32 NVS.
--   DS3231 battery ensures time retention.
-
-------------------------------------------------------------------------
-
-# 📄 License
-
-MIT License
+---
 
 © 2025 MjTs-140914™
